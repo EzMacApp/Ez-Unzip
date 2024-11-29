@@ -9,10 +9,14 @@
 /* Begin PBXBuildFile section */
 		9CAC9DD52CF7D3F200C613F9 /* SWCompression in Frameworks */ = {isa = PBXBuildFile; productRef = 9CAC9DD42CF7D3F200C613F9 /* SWCompression */; };
 		9CAC9DD82CF7E20A00C613F9 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = 9CAC9DD72CF7E20A00C613F9 /* KeyboardShortcuts */; };
+		9CC7E2552CF938BA00862B73 /* Pods_Ez_Unzip.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 634CFD47BBF9FBB247CD287F /* Pods_Ez_Unzip.framework */; };
 		9CD829A42CF6EA4F00ACCC95 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 9CD829A32CF6EA4F00ACCC95 /* ZIPFoundation */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		40360331D43AD5AEF130FC66 /* Pods-Ez Unzip.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Ez Unzip.debug.xcconfig"; path = "Target Support Files/Pods-Ez Unzip/Pods-Ez Unzip.debug.xcconfig"; sourceTree = "<group>"; };
+		634CFD47BBF9FBB247CD287F /* Pods_Ez_Unzip.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Ez_Unzip.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9388EFE94962A57B0CD035C1 /* Pods-Ez Unzip.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Ez Unzip.release.xcconfig"; path = "Target Support Files/Pods-Ez Unzip/Pods-Ez Unzip.release.xcconfig"; sourceTree = "<group>"; };
 		9CD829812CF6E24000ACCC95 /* Ez Unzip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Ez Unzip.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -29,6 +33,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9CC7E2552CF938BA00862B73 /* Pods_Ez_Unzip.framework in Frameworks */,
 				9CD829A42CF6EA4F00ACCC95 /* ZIPFoundation in Frameworks */,
 				9CAC9DD52CF7D3F200C613F9 /* SWCompression in Frameworks */,
 				9CAC9DD82CF7E20A00C613F9 /* KeyboardShortcuts in Frameworks */,
@@ -38,11 +43,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		88D9BBED9D8A5D2C95E248DD /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				634CFD47BBF9FBB247CD287F /* Pods_Ez_Unzip.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		9CD829782CF6E24000ACCC95 = {
 			isa = PBXGroup;
 			children = (
 				9CD829832CF6E24000ACCC95 /* Ez Unzip */,
 				9CD829822CF6E24000ACCC95 /* Products */,
+				E75B44F58EC2A10D6BFAF3B2 /* Pods */,
+				88D9BBED9D8A5D2C95E248DD /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -54,6 +69,15 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		E75B44F58EC2A10D6BFAF3B2 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				40360331D43AD5AEF130FC66 /* Pods-Ez Unzip.debug.xcconfig */,
+				9388EFE94962A57B0CD035C1 /* Pods-Ez Unzip.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -61,9 +85,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9CD829902CF6E24200ACCC95 /* Build configuration list for PBXNativeTarget "Ez Unzip" */;
 			buildPhases = (
+				D9E66E627F2680F0E378AC88 /* [CP] Check Pods Manifest.lock */,
 				9CD8297D2CF6E24000ACCC95 /* Sources */,
 				9CD8297E2CF6E24000ACCC95 /* Frameworks */,
 				9CD8297F2CF6E24000ACCC95 /* Resources */,
+				D37358CC2E82EDE9146248AF /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -130,6 +156,48 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		D37358CC2E82EDE9146248AF /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Ez Unzip/Pods-Ez Unzip-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Ez Unzip/Pods-Ez Unzip-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Ez Unzip/Pods-Ez Unzip-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		D9E66E627F2680F0E378AC88 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Ez Unzip-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		9CD8297D2CF6E24000ACCC95 /* Sources */ = {
@@ -262,6 +330,7 @@
 		};
 		9CD829912CF6E24200ACCC95 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 40360331D43AD5AEF130FC66 /* Pods-Ez Unzip.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -273,8 +342,10 @@
 				DEVELOPMENT_TEAM = KW8SJTE798;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Ez-Unzip-Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSAppleEventsUsageDescription = "This App need send AppleEvent to help change Sysytem Theme";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -291,6 +362,7 @@
 		};
 		9CD829922CF6E24200ACCC95 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9388EFE94962A57B0CD035C1 /* Pods-Ez Unzip.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -302,8 +374,10 @@
 				DEVELOPMENT_TEAM = KW8SJTE798;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Ez-Unzip-Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSAppleEventsUsageDescription = "This App need send AppleEvent to help change Sysytem Theme";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (

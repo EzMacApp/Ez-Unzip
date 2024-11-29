@@ -5,33 +5,40 @@
 //  Created by kkxx on 2024/11/27.
 //
 
-import KeyboardShortcuts
-import SWCompression
 import SwiftUI
+import KeyboardShortcuts
 import ZIPFoundation
+import SWCompression
+import UnrarKit
 
 struct ContentView: View {
     @State private var selectedFileURL: URL? = nil
     @State private var statusMessage: String = ""
+    @State private var isProcessing: Bool = false // 添加任务状态
 
     var body: some View {
         VStack {
-            Text("Drag & Drop Files Here")
-                .font(.headline)
-                .foregroundColor(.gray)
-                .padding()
-                .frame(maxWidth: .infinity, maxHeight: 200)
-                .background(RoundedRectangle(cornerRadius: 10).strokeBorder(Color.gray, lineWidth: 2))
-                .onDrop(of: [.fileURL], isTargeted: nil) { providers in
-                    handleFileDrop(providers: providers)
-                }
+            if isProcessing {
+                ProgressView("Processing...")
+                    .padding()
+            } else {
+                Text("Drag & Drop Files Here")
+                    .font(.headline)
+                    .foregroundColor(.gray)
+                    .padding()
+                    .frame(maxWidth: .infinity, maxHeight: 200)
+                    .background(RoundedRectangle(cornerRadius: 10).strokeBorder(Color.gray, lineWidth: 2))
+                    .onDrop(of: [.fileURL], isTargeted: nil) { providers in
+                        handleFileDrop(providers: providers)
+                    }
+            }
 
             Text(statusMessage)
                 .foregroundColor(.blue)
                 .padding()
         }
         .padding()
-        .onAppear{
+        .onAppear {
             setupGlobalShortcuts()
         }
     }
@@ -57,16 +64,14 @@ struct ContentView: View {
             return
         }
 
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = false
-        panel.canChooseDirectories = true
-        panel.allowsMultipleSelection = false
-        panel.message = "Select output directory"
-        panel.directoryURL = inputURL.deletingLastPathComponent() // 设置默认打开的目录为原文件所在目录
+        // 默认保存路径为输入文件所在目录
+        let outputURL = inputURL.deletingLastPathComponent()
 
-        if panel.runModal() == .OK {
-            if let outputURL = panel.url {
-                processFile(input: inputURL, output: outputURL)
+        isProcessing = true
+        DispatchQueue.global(qos: .userInitiated).async {
+            processFile(input: inputURL, output: outputURL)
+            DispatchQueue.main.async {
+                isProcessing = false
             }
         }
     }
@@ -80,6 +85,8 @@ struct ContentView: View {
             decompressZipFile(input: input, output: output)
         case "gz", "bz2", "xz", "tar":
             decompressWithSWCompression(input: input, output: output)
+        case "rar":
+            decompressRarFile(input: input, output: output)
         default:
             compressToZip(input: input, output: output)
         }
@@ -92,6 +99,19 @@ struct ContentView: View {
             try FileManager.default.createDirectory(at: destinationFolder, withIntermediateDirectories: true)
             try FileManager.default.unzipItem(at: input, to: destinationFolder)
             statusMessage = "Decompressed ZIP to \(destinationFolder.path)"
+        } catch {
+            statusMessage = "Decompression failed: \(error.localizedDescription)"
+        }
+    }
+
+    // Decompress rar file
+    func decompressRarFile(input: URL, output: URL) {
+        do {
+            let archive = try URKArchive(url: input)
+            let destinationFolder = resolveUniqueURL(output.appendingPathComponent(input.deletingPathExtension().lastPathComponent))
+            try FileManager.default.createDirectory(at: destinationFolder, withIntermediateDirectories: true)
+            try archive.extractFiles(to: destinationFolder.path, overwrite: true)
+            statusMessage = "Successfully decompressed RAR to \(destinationFolder.path)"
         } catch {
             statusMessage = "Decompression failed: \(error.localizedDescription)"
         }
@@ -163,59 +183,53 @@ struct ContentView: View {
         return uniqueURL
     }
 
+    func setupGlobalShortcuts() {
+        // 设置压缩快捷键
+        KeyboardShortcuts.onKeyUp(for: .compress) {
+            if let fileURL = getSelectedFileFromFinder() {
+                selectedFileURL = fileURL
+                let outputURL = fileURL.deletingLastPathComponent() // 保存到原目录
+                processFile(input: fileURL, output: outputURL)
+            }
+        }
+
+        // 设置解压快捷键
+        KeyboardShortcuts.onKeyUp(for: .decompress) {
+            if let fileURL = getSelectedFileFromFinder() {
+                selectedFileURL = fileURL
+                let outputURL = fileURL.deletingLastPathComponent() // 保存到原目录
+                processFile(input: fileURL, output: outputURL)
+            }
+        }
+    }
+
     func getSelectedFileFromFinder() -> URL? {
         var selectedFileURL: URL?
-        // AppleScript to check if Finder is running and get the selected file
-          let script = """
-          tell application "System Events"
-              if not (exists process "Finder") then
-                  tell application "Finder" to launch
-              end if
-          end tell
-          delay 0.5
-          tell application "Finder"
-              set theSelection to selection as alias list
-              if theSelection is not {} then
-                  set theFile to item 1 of theSelection
-                  POSIX path of theFile
-              else
-                  ""
-              end if
-          end tell
-          """
+        let script = """
+        tell application "System Events"
+            if not (exists process "Finder") then
+                tell application "Finder" to launch
+            end if
+        end tell
+        delay 0.5
+        tell application "Finder"
+            set theSelection to selection as alias list
+            if theSelection is not {} then
+                set theFile to item 1 of theSelection
+                POSIX path of theFile
+            else
+                ""
+            end if
+        end tell
+        """
 
         var error: NSDictionary?
         if let scriptObject = NSAppleScript(source: script) {
             if let output = scriptObject.executeAndReturnError(&error).stringValue {
                 selectedFileURL = URL(fileURLWithPath: output)
-            } else if let error = error {
-                print("AppleScript Error: \(error)")
             }
         }
-
         return selectedFileURL
-    }
-
-    func setupGlobalShortcuts() {
-        // 设置压缩快捷键
-        KeyboardShortcuts.onKeyUp(for: .compress) {
-            if let fileURL = self.getSelectedFileFromFinder() {
-                DispatchQueue.main.async {
-                    selectedFileURL = fileURL
-                    showSavePanelAndProcess()
-                }
-            }
-        }
-
-        // 设置解压缩快捷键
-        KeyboardShortcuts.onKeyUp(for: .decompress) {
-            if let fileURL = self.getSelectedFileFromFinder() {
-                DispatchQueue.main.async {
-                    selectedFileURL = fileURL
-                    showSavePanelAndProcess()
-                }
-            }
-        }
     }
 }
 
