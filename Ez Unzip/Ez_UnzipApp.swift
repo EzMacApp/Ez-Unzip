@@ -5,6 +5,7 @@
 //  Created by kkxx on 2024/11/27.
 //
 
+import KeyboardShortcuts
 import SwiftUI
 
 @main
@@ -23,6 +24,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var popover: NSPopover!
     var mainWindow: NSWindow? // 主窗口引用
     var settingsWindowController: NSWindowController? // 设置窗口控制器
+    var taskHelper = TaskHelper.shard
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // 初始化状态栏项目
@@ -31,16 +33,43 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             button.image = NSImage(systemSymbolName: "archivebox", accessibilityDescription: nil)
         }
 
-        // 设置菜单
-        let menu = NSMenu()
-        menu.addItem(NSMenuItem(title: "Open Main Window", action: #selector(openMainWindow), keyEquivalent: "m"))
-        menu.addItem(NSMenuItem(title: "Open Settings", action: #selector(openSettingsWindow), keyEquivalent: "s"))
-        menu.addItem(NSMenuItem.separator()) // 分隔线
-        menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: "q"))
-        statusItem.menu = menu
-
+        //初始化菜单
+        setupMenu()
+        
         // 初始化主窗口
         setupMainWindow()
+
+        // 注册全局快捷键
+        setupGlobalShortcuts()
+    }
+
+    func createMenuItem(imageName: String, action: Selector, keyEquivalent: String = "", modifierMask: NSEvent.ModifierFlags = []) -> NSMenuItem {
+        let menuItem = NSMenuItem()
+        menuItem.image = NSImage(systemSymbolName: imageName, accessibilityDescription: nil)
+        menuItem.action = action
+        menuItem.target = self
+        menuItem.title = ""
+        menuItem.keyEquivalent = keyEquivalent
+        menuItem.keyEquivalentModifierMask = modifierMask
+        return menuItem
+    }
+
+    func setupMenu() {
+        // 设置菜单
+        let menu = NSMenu()
+        // 添加菜单项：主窗口
+        menu.addItem(createMenuItem(imageName: "macwindow", action: #selector(openMainWindow), keyEquivalent: "m", modifierMask: [.control, .command]))
+
+        // 添加菜单项：设置窗口
+        menu.addItem(createMenuItem(imageName: "gear", action: #selector(openSettingsWindow), keyEquivalent: "s", modifierMask: [.control, .command]))
+
+        // 分隔线
+        menu.addItem(NSMenuItem.separator())
+
+        // 添加菜单项：退出应用
+        menu.addItem(createMenuItem(imageName: "power", action: #selector(quitApp), keyEquivalent: "q", modifierMask: [.command]))
+
+        statusItem.menu = menu
     }
 
     func setupMainWindow() {
@@ -103,5 +132,37 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc func quitApp() {
         NSApp.terminate(nil)
+    }
+
+    func setupGlobalShortcuts() {
+        // 设置压缩快捷键
+        KeyboardShortcuts.onKeyUp(for: .compress) {
+            if let fileURL = self.taskHelper.getSelectedFileFromFinder() {
+                let outputURL = fileURL.deletingLastPathComponent() // 保存到原目录
+                let compressedFileURL = outputURL.appendingPathComponent("\(fileURL.lastPathComponent).zip")
+                if FileManager.default.fileExists(atPath: compressedFileURL.path) {
+                    var statusMessage = "File already compressed: \(compressedFileURL.lastPathComponent)"
+                    return
+                }
+
+                self.taskHelper.compressToZip(input: fileURL, output: outputURL)
+            }
+        }
+
+        // 设置解压快捷键
+        KeyboardShortcuts.onKeyUp(for: .decompress) {
+            if let fileURL = self.taskHelper.getSelectedFileFromFinder() {
+                let outputURL = fileURL.deletingLastPathComponent() // 保存到原目录
+                self.taskHelper.decompressFile(input: fileURL, output: outputURL)
+            }
+        }
+
+        KeyboardShortcuts.onKeyUp(for: .openMain) {
+            self.openMainWindow()
+        }
+
+        KeyboardShortcuts.onKeyUp(for: .openSetting) {
+            self.openSettingsWindow()
+        }
     }
 }
